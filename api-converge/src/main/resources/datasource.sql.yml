@@ -1,0 +1,69 @@
+impala:
+  sql:
+    checkMissingInfoDate: >
+      WITH cte_calendar AS (
+         SELECT infodate
+         FROM motc.calendar
+         WHERE infodate BETWEEN :startDate AND :endDate
+      ), cte_store_infodate AS (
+         SELECT infodate
+         FROM %s
+         WHERE infodate BETWEEN :startDate AND :endDate
+         GROUP BY infodate
+         HAVING COUNT(infodate) > 0
+      )
+      SELECT t1.infodate
+      FROM cte_calendar AS t1
+      LEFT JOIN cte_store_infodate AS t2
+      ON t1.infodate = t2.infodate
+      WHERE t2.infodate IS NULL
+   
+    general:
+      REFRESH :targetTable_ex;
+      INSERT OVERWRITE :targetTable PARTITION(infodate) 
+      SELECT * FROM :targetTable_ex
+      where length(infodate)=10
+      UNION
+      SELECT * FROM :targetTable
+      WHERE infodate IN ( SELECT DISTINCT infodate FROM :targetTable_ex ) and length(infodate)=10;
+      COMPUTE INCREMENTAL STATS :targetTable;
+      SELECT COUNT(*) AS records FROM :targetTable_ex
+   
+    hinetCvpRtData:
+      REFRESH TEST.hinet_cvp_rt_data_ex;
+      INSERT OVERWRITE TEST.hinet_cvp_rt_data PARTITION(infodate)
+      SELECT
+        api_id,
+        status,
+        msg, name,
+        gid,
+        population,
+        FROM_UNIXTIME(UNIX_TIMESTAMP(data_time, 'yyyyMMddHHmmss')) AS data_time,
+        srcupdatetime,
+        updatetime,
+        infotime,
+        infodate
+      FROM TEST.hinet_cvp_rt_data_ex
+      UNION
+      SELECT *
+      FROM TEST.hinet_cvp_rt_data
+      WHERE infodate IN ( SELECT DISTINCT infodate FROM TEST.hinet_cvp_rt_data_ex );
+      COMPUTE INCREMENTAL STATS TEST.hinet_cvp_rt_data;
+      INSERT OVERWRITE TEST.hinet_cvp_rt_data_statistics PARTITION(infodate)
+      SELECT 
+          name
+        , infodate AS data_date
+        , FROM_UNIXTIME(UNIX_TIMESTAMP(data_time, 'yyyyMMddHHmmss'))
+        , CAST(SUM(population) AS INT) AS population
+        , NOW()
+        , NOW()
+        , infotime
+        , infodate
+      FROM TEST.hinet_cvp_rt_data_ex
+      GROUP BY name, infodate, infotime, data_time
+      UNION
+      SELECT *
+      FROM TEST.hinet_cvp_rt_data_statistics
+      WHERE infodate IN ( SELECT DISTINCT infodate FROM TEST.hinet_cvp_rt_data_ex );
+      COMPUTE INCREMENTAL STATS TEST.hinet_cvp_rt_data_statistics;
+      SELECT COUNT(*) AS records FROM TEST.hinet_cvp_rt_data_ex

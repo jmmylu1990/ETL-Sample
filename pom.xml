@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.example</groupId>
+	<artifactId>EtlExecutor</artifactId>
+	<version>1.0.9-SNAPSHOT</version>
+	<name>EtlExecutor</name>
+	<packaging>pom</packaging>
+	<description>Custom etl module</description>
+	
+	<scm>
+		<connection>scm:git:http://scm.example.com/scm/svn/TDD52/git/ETL_KAO_GIT</connection>
+		<url>http://scm.example.com/scm/svn/TDD52/git/ETL_KEL_GIT</url>
+		<developerConnection>scm:git:http://scm.example.com/scm/svn/TDD52/git/ETL_KAO_GIT</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.6.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+	
+	<modules>
+		<module>api-converge</module>
+		<module>api-utils</module>
+	</modules>
+	
+	<build>
+		<plugins>
+			<!-- Release version management -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<arguments>-Dmaven.javadoc.skip=true -Dmaven.test.skipTests=true -Dmaven.test.skip=true</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<repositories>
+
+		<repository>
+			<id>cloudera</id>
+			<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+		</repository>
+	</repositories>
+</project>

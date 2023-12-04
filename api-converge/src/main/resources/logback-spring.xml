@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration  scan="true" scanPeriod="10 seconds">
+    <contextName>logback</contextName>
+ 
+    <!-- Format the log output: 
+    	%date present `log datetime`
+    	%thread present `thread name`
+    	%-5level present `The character length from the left wtih level output`
+    	%msg present `message`
+    	%n present `line break` 
+    -->
+    <property name="CONSOLE_LOG_PATTERN" value="%date{yyyy-MM-dd HH:mm:ss.SSS} %green([%thread]) %highlight(%-5level) %yellow(%class{36}.%M:%L) - %msg%n" />
+    <property name="FILE_LOG_PATTERN" value="%date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %class{36}.%M:%L - %msg%n" />
+ 
+    <!-- Define the log file path pattern -->
+    <property name="FILE_PATH" value="./logs/ApiConverge.%d{yyyyMMdd}.%i.log" />
+ 
+    <!-- Define console output -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <!-- Define log output pattern -->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+ 
+    <!-- Use rollingFile to seperate log and only keep storing the last 30 days -->
+    <appender name="rollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${FILE_PATH}</fileNamePattern>
+            <!-- keep 15 days' worth of history -->
+            <maxHistory>30</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- Define the max size with log file -->
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- Delete file if size exceed -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+ 
+    <!-- project default level -->
+    <logger name="net.sh.rgface.serive" level="ERROR" />
+ 
+    <!-- Log output level -->
+    <root level="INFO">
+        <appender-ref ref="console" />
+        <appender-ref ref="rollingFile" />
+    </root>
+</configuration>

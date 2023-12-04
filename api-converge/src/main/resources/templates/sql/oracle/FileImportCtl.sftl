@@ -1,0 +1,10 @@
+LOAD DATA
+CHARACTERSET 'UTF8'
+INFILE '${filePath}'
+APPEND
+INTO TABLE ${table}
+FIELDS TERMINATED BY '${delimiter}'
+TRAILING NULLCOLS 
+(
+	${columnSpec}
+)

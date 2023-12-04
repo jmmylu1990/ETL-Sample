@@ -1,0 +1,7 @@
+/logs/
+/oracle-ctl/
+/.project
+/.settings/
+/target/
+/*.log
+/.idea
